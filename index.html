@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VCE Maths Scaling Calculator 2025 – General, Methods & Specialist</title>
+<meta name="description" content="Free VCE maths scaling calculator. See how your raw study score in General Mathematics, Mathematical Methods or Specialist Mathematics scales, using VTAC's 2025 Scaling Report.">
+<link rel="canonical" href="https://vcescaling.com.au/">
+<meta property="og:title" content="VCE Maths Scaling Calculator">
+<meta property="og:description" content="See how your raw study score scales for General, Methods and Specialist Maths.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://vcescaling.com.au/">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📐</text></svg>">
+
+<!-- Structured data: helps Google understand this is a free calculator tool -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "VCE Maths Scaling Calculator",
+  "url": "https://vcescaling.com.au/",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
+  "description": "Estimate how a VCE raw study score in General Mathematics, Mathematical Methods or Specialist Mathematics is scaled by VTAC."
+}
+</script>
+
+<style>
+  /* ==========================================================
+     DESIGN TOKENS
+     Change colours here. Dark-mode versions are further down.
+     ========================================================== */
+  :root {
+    --paper:     #f3f6f9;   /* page background (cool blue-grey) */
+    --surface:   #ffffff;   /* calculator panel */
+    --ink:       #1c2b3a;   /* main text */
+    --ink-soft:  #4f6275;   /* secondary text */
+    --rule:      #d5dee7;   /* borders and lines */
+    --grid:      #e3eaf1;   /* faint graph-paper grid */
+    --navy:      #1f3a5f;   /* headings, primary accent */
+    --up:        #1b7a6b;   /* scaled UP colour (teal) */
+    --up-tint:   #e0f1ee;
+    --down:      #8b5a2b;   /* scaled DOWN colour (brown) */
+    --down-tint: #f1e6db;
+    --same:      #4f6275;
+
+    --serif: "Iowan Old Style", "Charter", "Bitstream Charter", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans:  system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:     #121a23;
+      --surface:   #1a2531;
+      --ink:       #e4ebf2;
+      --ink-soft:  #a3b3c3;
+      --rule:      #2e3d4d;
+      --grid:      #18222d;
+      --navy:      #9ec3ea;
+      --up:        #5cc9b5;
+      --up-tint:   #17352f;
+      --down:      #d4a373;
+      --down-tint: #3a2a17;
+      --same:      #a3b3c3;
+    }
+  }
+
+  /* ==========================================================
+     BASE
+     ========================================================== */
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background-color: var(--paper);
+    /* Faint graph-paper grid – a quiet nod to maths books */
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .wrap {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 3rem;
+  }
+
+  h1, h2 {
+    font-family: var(--serif);
+    color: var(--navy);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  h1 { font-size: clamp(1.9rem, 6vw, 2.5rem); margin: 0 0 0.5rem; }
+  h2 { font-size: 1.45rem; margin: 2.75rem 0 0.75rem; }
+
+  p { margin: 0 0 1rem; }
+
+  .subtitle { color: var(--ink-soft); margin: 0 0 1.75rem; font-size: 1.1rem; }
+
+  a { color: var(--navy); text-underline-offset: 2px; }
+
+  :focus-visible { outline: 3px solid var(--up); outline-offset: 2px; }
+
+  /* ==========================================================
+     CALCULATOR PANEL
+     ========================================================== */
+  .calc {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media (min-width: 520px) {
+    .fields { grid-template-columns: 1.6fr 1fr; }
+  }
+
+  label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.35rem; }
+
+  select, input[type="number"] {
+    width: 100%;
+    font: inherit;
+    font-size: 1.1rem;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1.5px solid var(--rule);
+    border-radius: 10px;
+    padding: 0.7rem 0.8rem;
+    min-height: 3rem;
+  }
+  select:focus, input:focus { border-color: var(--navy); outline: none; }
+  input[type="number"] { font-variant-numeric: tabular-nums; }
+
+  /* Result line */
+  .result {
+    margin: 1.5rem 0 0.25rem;
+    min-height: 3.5rem;
+  }
+  .result-main {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .scaled-big {
+    font-family: var(--serif);
+    font-size: 3.25rem;
+    line-height: 1;
+    font-weight: 600;
+    color: var(--navy);
+    font-variant-numeric: tabular-nums;
+  }
+  .delta {
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-variant-numeric: tabular-nums;
+  }
+  .delta.up   { color: var(--up);   background: var(--up-tint); }
+  .delta.down { color: var(--down); background: var(--down-tint); }
+  .delta.same { color: var(--same); background: var(--grid); }
+
+  .result-text { margin: 0.6rem 0 0; color: var(--ink); }
+  .result-text.muted { color: var(--ink-soft); }
+
+  /* ==========================================================
+     NUMBER LINE VISUAL
+     Track runs from 0 to 55 (scaled scores can exceed 50).
+     ========================================================== */
+  .numberline {
+    position: relative;
+    height: 84px;
+    margin: 1.25rem 0.5rem 0.25rem;
+  }
+  .track {
+    position: absolute;
+    left: 0; right: 0; top: 42px;
+    height: 2px;
+    background: var(--rule);
+  }
+  .tick {
+    position: absolute;
+    top: 38px;
+    width: 1px; height: 10px;
+    background: var(--rule);
+    transform: translateX(-0.5px);
+  }
+  .tick-label {
+    position: absolute;
+    top: 52px;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    transform: translateX(-50%);
+    font-variant-numeric: tabular-nums;
+  }
+  /* Coloured segment between raw and scaled */
+  .shift {
+    position: absolute;
+    top: 41px;
+    height: 4px;
+    border-radius: 2px;
+    transition: left .35s ease, width .35s ease, background-color .2s;
+  }
+  .dot {
+    position: absolute;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    transition: left .35s ease;
+  }
+  .dot.raw {
+    top: 35px;
+    background: var(--surface);
+    border: 3px solid var(--ink-soft);
+  }
+  .dot.scaled {
+    top: 35px;
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 2px currentColor;
+    background: currentColor;
+  }
+  .flag {
+    position: absolute;
+    top: 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    transition: left .35s ease;
+  }
+  .flag.raw { color: var(--ink-soft); }
+
+  .legend { font-size: 0.85rem; color: var(--ink-soft); margin: 0.5rem 0 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 0.35rem; margin-right: 1rem; }
+  .swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .swatch.raw { border: 2.5px solid var(--ink-soft); }
+  .swatch.scaled { background: var(--navy); transition: background-color .2s; }
+
+  .is-hidden { visibility: hidden; }
+
+  /* ==========================================================
+     COMPARISON TABLE
+     ========================================================== */
+  .table-scroll { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  th, td { padding: 0.75rem 0.9rem; text-align: left; border-bottom: 1px solid var(--rule); }
+  th { font-size: 0.9rem; color: var(--ink-soft); font-weight: 600; }
+  td.num, th.num { text-align: right; }
+  tr:last-child td { border-bottom: none; }
+  tr.current td { background: var(--grid); font-weight: 600; }
+  .chg.up { color: var(--up); }
+  .chg.down { color: var(--down); }
+  .table-note { font-size: 0.9rem; color: var(--ink-soft); margin-top: 0.6rem; }
+
+  .tool-list { list-style: none; padding: 0; margin: 0; }
+  .tool-list li { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 0.9rem 1rem; margin-bottom: 0.6rem; }
+  .tool-list a { font-weight: 600; }
+  .tool-list span { display: block; font-size: 0.92rem; color: var(--ink-soft); margin-top: 0.2rem; }
+
+  /* ==========================================================
+     FOOTER
+     ========================================================== */
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  footer p { margin-bottom: 0.75rem; }
+  footer .author { color: var(--ink); font-weight: 500; }
+  .other-sites { list-style: none; padding: 0; margin: 0.5rem 0 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shift, .dot, .flag { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <!-- 1. HEADER -->
+  <header>
+    <h1>VCE Maths Scaling Calculator</h1>
+    <p class="subtitle">See how your raw study score scales for General, Methods and Specialist Maths.</p>
+  </header>
+
+  <!-- 2. CALCULATOR -->
+  <section class="calc" aria-label="Scaling calculator">
+    <div class="fields">
+      <div>
+        <label for="subject">Subject</label>
+        <select id="subject"></select>
+      </div>
+      <div>
+        <label for="score">Raw study score (0–50)</label>
+        <input id="score" type="number" inputmode="numeric" min="0" max="50" step="1" value="35">
+      </div>
+    </div>
+
+    <div class="result" aria-live="polite">
+      <div class="result-main" id="resultMain">
+        <span class="scaled-big" id="scaledBig">–</span>
+        <span class="delta" id="delta"></span>
+      </div>
+      <p class="result-text" id="resultText"></p>
+    </div>
+
+    <!-- 3. VISUAL: number line from 0 to 55 -->
+    <div class="numberline" id="numberline" aria-hidden="true">
+      <div class="track"></div>
+      <div class="shift" id="shift"></div>
+      <div class="flag raw" id="flagRaw">Raw</div>
+      <div class="flag scaled" id="flagScaled">Scaled</div>
+      <div class="dot raw" id="dotRaw"></div>
+      <div class="dot scaled" id="dotScaled"></div>
+    </div>
+    <p class="legend" aria-hidden="true">
+      <span><i class="swatch raw"></i>Your raw study score</span>
+      <span><i class="swatch scaled" id="swatchScaled"></i>Estimated scaled score</span>
+    </p>
+  </section>
+
+  <!-- 4. EXPLANATION -->
+  <section>
+    <h2>What scaling actually does</h2>
+    <p><strong>Your study score is a rank, not a mark.</strong> It isn't 35 out of 50 like a test result. It shows where you finished compared with everyone in Victoria who took that subject. Study scores are set so the average is about 30, and only around 9% of students score 40 or more.</p>
+    <p><strong>Scaling makes different subjects fair to compare.</strong> Before working out ATARs, VTAC (the Victorian Tertiary Admissions Centre) adjusts every study score. It looks at how strong each subject's students are across all their other subjects. If a subject's students tend to do very well everywhere, finishing in the middle of that group is harder, so the score is scaled up. If a subject has a broader mix of students, the score may be scaled down slightly.</p>
+    <p><strong>Why maths subjects move the way they do.</strong> Specialist Mathematics and Mathematical Methods are mostly taken by students who are strong across the board, so they scale up. General Mathematics (which replaced Further Mathematics) is taken by a much wider range of students, so it scales down a little in the middle of the range.</p>
+    <p><strong>This isn't a reason to change subjects in a panic.</strong> A high score in a subject you're good at is usually worth more than a low score in one that scales well. In 2025, a 45 in General Mathematics scaled to 44, while a 30 in Methods scaled to 35. Choose the maths that suits you, and use this tool so there are no surprises when your ATAR arrives.</p>
+  </section>
+
+  <!-- 5. COMPARISON TABLE -->
+  <section>
+    <h2 id="compareHeading">The same score, three different results</h2>
+    <div class="table-scroll">
+      <table aria-describedby="compareHeading">
+        <thead>
+          <tr>
+            <th scope="col">Subject</th>
+            <th scope="col" class="num">Raw</th>
+            <th scope="col" class="num">Scaled</th>
+            <th scope="col" class="num">Change</th>
+          </tr>
+        </thead>
+        <tbody id="compareBody"></tbody>
+      </table>
+    </div>
+    <p class="table-note">All three subjects at a raw study score of <span id="compareScoreNote">35</span>. Your selected subject is highlighted.</p>
+  </section>
+
+  <!-- 6. MORE TOOLS: add a new <li> for each General Maths page -->
+  <section>
+    <h2>Free VCE General Maths tools</h2>
+    <ul class="tool-list">
+      <li><a href="general-maths/recurrence-relations/">Recurrence relation calculator</a> <span>Every term worked out step by step, with examples for loans, savings and depreciation.</span></li>
+    </ul>
+  </section>
+
+  <!-- 7. FOOTER -->
+  <footer>
+    <!-- About the author: edit this line if your role changes -->
+    <p class="author">Built by a VCE General Mathematics teacher in Victoria, to help students understand how their scores are scaled.</p>
+    <p>Based on VTAC's <a href="https://vtac.edu.au/files/pdf/reports/scaling-report-25.pdf" rel="noopener">2025 Scaling Report</a> (published 11 December 2025).</p>
+    <p>Results are estimates only and are not official. VTAC publishes scaled scores at 20, 25, 30, 35, 40, 45 and 50; scores in between are estimated, and scaling changes every year. This site is not affiliated with VTAC or VCAA.</p>
+    <p>More free tools:</p>
+    <ul class="other-sites">
+      <!-- Edit or add your other sites here -->
+      <li><a href="https://calccompoundinterest.com/">Compound interest calculator</a></li>
+      <li><a href="https://musicusingtech.com/">Music Using Tech</a></li>
+      <li><a href="https://lifebuiltwell.com/">Life Built Well</a></li>
+    </ul>
+  </footer>
+</main>
+
+<script>
+/* ==============================================================
+   SCALING DATA — UPDATE THIS EACH DECEMBER
+   ==============================================================
+   Copy the rows for each maths subject from the new VTAC Scaling
+   Report (page 2, "Mathematics" section).
+
+   points: the scaled score VTAC lists for raw study scores of
+           20, 25, 30, 35, 40, 45 and 50 (in that order).
+
+   To add another subject (e.g. Foundation Mathematics), copy one
+   block and change the name and numbers. Foundation 2025 values:
+   [12, 16, 20, 26, 32, 40, 50]
+   ============================================================== */
+const REPORT_YEAR = 2025;
+
+const RAW_POINTS = [20, 25, 30, 35, 40, 45, 50];
+
+const SUBJECTS = [
+  {
+    id: "general",
+    name: "General Mathematics",
+    label: "General Mathematics (formerly Further)",
+    points: [18, 23, 28, 33, 38, 44, 50]
+  },
+  {
+    id: "methods",
+    name: "Mathematical Methods",
+    label: "Mathematical Methods",
+    points: [21, 28, 35, 41, 46, 49, 51]
+  },
+  {
+    id: "specialist",
+    name: "Specialist Mathematics",
+    label: "Specialist Mathematics",
+    points: [29, 36, 43, 48, 51, 54, 55]
+  }
+];
+
+/* The raw score used in the comparison table */
+const COMPARE_SCORE = 35;
+
+/* The number line runs from 0 to this value (scaled scores can pass 50) */
+const LINE_MAX = 55;
+
+
+/* ==============================================================
+   CALCULATION
+   ============================================================== */
+
+/**
+ * Estimate a scaled score for a raw study score.
+ * - Exact VTAC values are used at 20, 25, 30 … 50.
+ * - Between those points we draw a straight line (linear interpolation).
+ * - Below 20 we draw a straight line from 0 up to the VTAC value at 20.
+ * Returns { value, exact } where exact = true if it's a published VTAC figure.
+ */
+function scaleScore(subject, raw) {
+  const xs = [0, ...RAW_POINTS];
+  const ys = [0, ...subject.points];
+
+  for (let i = 0; i < xs.length - 1; i++) {
+    if (raw >= xs[i] && raw <= xs[i + 1]) {
+      const t = (raw - xs[i]) / (xs[i + 1] - xs[i]);
+      const value = ys[i] + t * (ys[i + 1] - ys[i]);
+      const exact = RAW_POINTS.includes(raw);
+      return { value, exact };
+    }
+  }
+  return null; // outside 0–50
+}
+
+
+/* ==============================================================
+   PAGE ELEMENTS
+   ============================================================== */
+const el = {
+  subject:     document.getElementById("subject"),
+  score:       document.getElementById("score"),
+  scaledBig:   document.getElementById("scaledBig"),
+  delta:       document.getElementById("delta"),
+  resultText:  document.getElementById("resultText"),
+  resultMain:  document.getElementById("resultMain"),
+  numberline:  document.getElementById("numberline"),
+  shift:       document.getElementById("shift"),
+  dotRaw:      document.getElementById("dotRaw"),
+  dotScaled:   document.getElementById("dotScaled"),
+  flagRaw:     document.getElementById("flagRaw"),
+  flagScaled:  document.getElementById("flagScaled"),
+  swatchScaled: document.getElementById("swatchScaled"),
+  compareBody: document.getElementById("compareBody"),
+  compareNote: document.getElementById("compareScoreNote")
+};
+
+/* Fill the subject dropdown from the data above */
+SUBJECTS.forEach(s => {
+  const opt = document.createElement("option");
+  opt.value = s.id;
+  opt.textContent = s.label;
+  el.subject.appendChild(opt);
+});
+
+/* Draw tick marks on the number line: 0, 10, 20, 30, 40, 50 */
+[0, 10, 20, 30, 40, 50].forEach(n => {
+  const pct = (n / LINE_MAX) * 100;
+  const tick = document.createElement("div");
+  tick.className = "tick";
+  tick.style.left = pct + "%";
+  const lab = document.createElement("div");
+  lab.className = "tick-label";
+  lab.style.left = pct + "%";
+  lab.textContent = n;
+  el.numberline.append(tick, lab);
+});
+
+const pct = n => (Math.max(0, Math.min(LINE_MAX, n)) / LINE_MAX) * 100 + "%";
+
+/* Pick the colour/word for the direction of change */
+function direction(diff) {
+  if (diff >= 0.5)  return { cls: "up",   color: "var(--up)" };
+  if (diff <= -0.5) return { cls: "down", color: "var(--down)" };
+  return { cls: "same", color: "var(--same)" };
+}
+
+
+/* ==============================================================
+   UPDATE THE CALCULATOR (runs every time the user types/changes)
+   ============================================================== */
+function update() {
+  const subject = SUBJECTS.find(s => s.id === el.subject.value);
+  const rawText = el.score.value.trim();
+  const raw = Number(rawText);
+
+  const valid = rawText !== "" && Number.isFinite(raw) && raw >= 0 && raw <= 50;
+
+  if (!valid) {
+    el.scaledBig.textContent = "–";
+    el.delta.textContent = "";
+    el.delta.className = "delta";
+    el.resultText.className = "result-text muted";
+    el.resultText.textContent = rawText === ""
+      ? "Enter your raw study score to see it scaled."
+      : "Study scores run from 0 to 50. Enter a number in that range.";
+    el.numberline.classList.add("is-hidden");
+    highlightRow(subject.id);
+    return;
+  }
+
+  el.numberline.classList.remove("is-hidden");
+
+  const { value, exact } = scaleScore(subject, raw);
+  const rounded = Math.round(value);
+  const diff = value - raw;
+  const dir = direction(diff);
+  const shown = Math.round(diff);
+
+  // Big number + change badge
+  el.scaledBig.textContent = rounded;
+  el.delta.className = "delta " + dir.cls;
+  el.delta.textContent =
+    dir.cls === "same" ? "No change"
+    : (shown > 0 ? "+" : "−") + Math.abs(shown) + (Math.abs(shown) === 1 ? " point" : " points");
+
+  // Sentence
+  const rawDisplay = Number.isInteger(raw) ? raw : raw.toFixed(1);
+  el.resultText.className = "result-text";
+  el.resultText.textContent =
+    `A raw study score of ${rawDisplay} in ${subject.name} scales to ` +
+    (exact ? `${rounded}` : `approximately ${rounded}`) +
+    ` (VTAC ${REPORT_YEAR}).`;
+
+  // Number line
+  const left = Math.min(raw, value), right = Math.max(raw, value);
+  el.shift.style.left = pct(left);
+  el.shift.style.width = `calc(${pct(right)} - ${pct(left)})`;
+  el.shift.style.backgroundColor = dir.color;
+
+  el.dotRaw.style.left = pct(raw);
+  el.dotScaled.style.left = pct(value);
+  el.dotScaled.style.color = dir.color;
+
+  el.flagRaw.style.left = pct(raw);
+  el.flagScaled.style.left = pct(value);
+  el.flagScaled.style.color = dir.color;
+
+  // Legend dot matches the scaled dot: teal = up, brown = down, grey = no change
+  el.swatchScaled.style.backgroundColor = dir.color;
+  el.flagScaled.textContent = "Scaled " + rounded;
+  el.flagRaw.textContent = "Raw " + rawDisplay;
+
+  // Stop the two labels overlapping when the scores are close together
+  const gapPct = Math.abs(value - raw) / LINE_MAX * 100;
+  el.flagRaw.style.top = gapPct < 14 ? "62px" : "0";
+  el.flagRaw.style.display = gapPct < 14 ? "none" : "";
+
+  highlightRow(subject.id);
+}
+
+
+/* ==============================================================
+   COMPARISON TABLE (built once, row highlight follows dropdown)
+   ============================================================== */
+function buildTable() {
+  el.compareNote.textContent = COMPARE_SCORE;
+  el.compareBody.innerHTML = "";
+  SUBJECTS.forEach(s => {
+    const { value } = scaleScore(s, COMPARE_SCORE);
+    const scaled = Math.round(value);
+    const diff = scaled - COMPARE_SCORE;
+    const dir = direction(diff);
+    const tr = document.createElement("tr");
+    tr.dataset.id = s.id;
+    tr.innerHTML = `
+      <td>${s.name}</td>
+      <td class="num">${COMPARE_SCORE}</td>
+      <td class="num">${scaled}</td>
+      <td class="num chg ${dir.cls}">${diff > 0 ? "+" : diff < 0 ? "−" : ""}${Math.abs(diff)}</td>`;
+    el.compareBody.appendChild(tr);
+  });
+}
+
+function highlightRow(id) {
+  el.compareBody.querySelectorAll("tr").forEach(tr =>
+    tr.classList.toggle("current", tr.dataset.id === id));
+}
+
+
+/* ==============================================================
+   START
+   ============================================================== */
+el.subject.addEventListener("change", update);
+el.score.addEventListener("input", update);
+buildTable();
+update();
+</script>
+</body>
+</html>

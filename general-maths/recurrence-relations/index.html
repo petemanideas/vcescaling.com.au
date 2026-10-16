@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recurrence Relation Calculator – VCE General Maths</title>
+<meta name="description" content="Free VCE General Maths Units 1 & 2 recurrence relation calculator. Simple interest, flat rate, unit cost and reducing-balance depreciation and compound interest, worked out step by step.">
+<link rel="canonical" href="https://vcescaling.com.au/general-maths/recurrence-relations/">
+<meta property="og:title" content="Recurrence Relation Calculator – VCE General Maths">
+<meta property="og:description" content="See every term of a recurrence relation worked out step by step.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://vcescaling.com.au/general-maths/recurrence-relations/">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📐</text></svg>">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "VCE General Maths Recurrence Relation Calculator",
+  "url": "https://vcescaling.com.au/general-maths/recurrence-relations/",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
+  "description": "Generate the terms of a first-order linear recurrence relation step by step, as used in VCE General Mathematics."
+}
+</script>
+
+<style>
+  /* ==========================================================
+     DESIGN TOKENS – same palette as the scaling calculator
+     ========================================================== */
+  :root {
+    --paper:     #f3f6f9;
+    --surface:   #ffffff;
+    --ink:       #1c2b3a;
+    --ink-soft:  #4f6275;
+    --rule:      #d5dee7;
+    --grid:      #e3eaf1;
+    --navy:      #1f3a5f;
+    --up:        #1b7a6b;
+    --up-tint:   #e0f1ee;
+    --down:      #8b5a2b;
+    --down-tint: #f1e6db;
+    --same:      #4f6275;
+
+    --serif: "Iowan Old Style", "Charter", "Bitstream Charter", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans:  system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:     #121a23;
+      --surface:   #1a2531;
+      --ink:       #e4ebf2;
+      --ink-soft:  #a3b3c3;
+      --rule:      #2e3d4d;
+      --grid:      #18222d;
+      --navy:      #9ec3ea;
+      --up:        #5cc9b5;
+      --up-tint:   #17352f;
+      --down:      #d4a373;
+      --down-tint: #3a2a17;
+      --same:      #a3b3c3;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .wrap { max-width: 44rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+  h1, h2, h3 { font-family: var(--serif); color: var(--navy); font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
+  h1 { font-size: clamp(1.8rem, 6vw, 2.4rem); margin: 0 0 0.5rem; }
+  h2 { font-size: 1.45rem; margin: 2.75rem 0 0.75rem; }
+  h3 { font-size: 1.15rem; margin: 1.75rem 0 0.5rem; }
+  p { margin: 0 0 1rem; }
+  a { color: var(--navy); text-underline-offset: 2px; }
+  :focus-visible { outline: 3px solid var(--up); outline-offset: 2px; }
+
+  .crumbs { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 1.25rem; }
+  .subtitle { color: var(--ink-soft); margin: 0 0 1.5rem; font-size: 1.1rem; }
+
+  /* Maths notation */
+  .m { font-family: var(--serif); font-style: italic; white-space: nowrap; }
+  .m sub { font-style: normal; font-size: 0.7em; }
+
+  /* ==========================================================
+     CALCULATOR PANEL
+     ========================================================== */
+  .calc { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 1.5rem 1.25rem 1.25rem; }
+
+  .presets-label { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem; }
+  .presets { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+  .preset {
+    font: inherit; font-size: 0.9rem;
+    color: var(--navy); background: var(--paper);
+    border: 1.5px solid var(--rule); border-radius: 999px;
+    padding: 0.4rem 0.85rem; cursor: pointer;
+  }
+  .preset:hover { border-color: var(--navy); }
+  .preset[aria-pressed="true"] { background: var(--navy); color: var(--surface); border-color: var(--navy); }
+  .context { font-size: 0.95rem; color: var(--ink-soft); min-height: 1.5em; margin: 0 0 1.25rem; }
+
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: end; }
+  @media (min-width: 560px) { .fields { grid-template-columns: repeat(4, 1fr); } }
+  label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.35rem; }
+  .hint { display: block; font-weight: 400; font-size: 0.8rem; color: var(--ink-soft); }
+  input[type="number"], select {
+    width: 100%; font: inherit; font-size: 1.1rem; color: var(--ink);
+    background: var(--paper); border: 1.5px solid var(--rule); border-radius: 10px;
+    padding: 0.65rem 0.75rem; min-height: 3rem; font-variant-numeric: tabular-nums;
+  }
+  input:focus, select:focus { border-color: var(--navy); outline: none; }
+
+  /* Rate-to-R helper */
+  details.helper { margin-top: 1rem; border: 1px dashed var(--rule); border-radius: 10px; padding: 0.6rem 0.9rem; }
+  details.helper summary { cursor: pointer; font-weight: 600; font-size: 0.95rem; color: var(--navy); }
+  .helper-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem; }
+  @media (min-width: 560px) { .helper-grid { grid-template-columns: repeat(3, 1fr) auto; align-items: end; } }
+  .btn {
+    font: inherit; font-weight: 600; font-size: 0.95rem;
+    color: var(--surface); background: var(--navy);
+    border: none; border-radius: 10px; padding: 0.7rem 1rem; min-height: 3rem; cursor: pointer;
+  }
+  .helper-out { font-size: 0.9rem; color: var(--ink-soft); margin: 0.6rem 0 0; }
+
+  /* Result summary */
+  .rule-box {
+    margin: 1.5rem 0 0; padding: 1rem 1.1rem;
+    background: var(--paper); border-radius: 10px; border-left: 4px solid var(--navy);
+  }
+  .rule-box .rel { font-family: var(--serif); font-size: 1.35rem; color: var(--navy); }
+  .rule-box .rel i { font-style: italic; }
+  .rule-box .rel sub { font-size: 0.65em; }
+  .tag {
+    display: inline-block; font-size: 0.85rem; font-weight: 700;
+    padding: 0.15rem 0.6rem; border-radius: 999px; margin-top: 0.5rem;
+  }
+  .tag.up   { color: var(--up);   background: var(--up-tint); }
+  .tag.down { color: var(--down); background: var(--down-tint); }
+  .tag.same { color: var(--same); background: var(--grid); }
+  .rule-box p { margin: 0.5rem 0 0; font-size: 0.95rem; }
+  .alert { margin-top: 0.75rem; font-size: 0.95rem; font-weight: 600; color: var(--down); }
+
+  /* Graph */
+  .graph { margin-top: 1.25rem; }
+  .graph svg { width: 100%; height: auto; display: block; }
+  .graph text { font-family: var(--sans); font-size: 20px; fill: var(--ink-soft); }
+
+  /* Table */
+  .table-scroll { overflow-x: auto; margin-top: 1.25rem; border: 1px solid var(--rule); border-radius: 12px; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; background: var(--surface); }
+  th, td { padding: 0.6rem 0.8rem; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  th { font-size: 0.85rem; color: var(--ink-soft); font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+  th:first-child, td:first-child { text-align: center; }
+  td.calc-col { color: var(--ink-soft); font-size: 0.92rem; }
+  tr:last-child td { border-bottom: none; }
+  tr.start td { background: var(--grid); }
+  tr.crossed td { color: var(--down); font-weight: 600; }
+  .chg.up { color: var(--up); }
+  .chg.down { color: var(--down); }
+  .table-note { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.5rem; }
+
+  /* Explanation cards */
+  .types { display: grid; gap: 0.75rem; }
+  @media (min-width: 620px) { .types { grid-template-columns: repeat(3, 1fr); } }
+  .type-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 1rem; }
+  .type-card h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+  .type-card p { font-size: 0.93rem; margin: 0 0 0.4rem; }
+  .type-card .m { font-size: 1.05rem; }
+
+  .worked { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 1.1rem 1.2rem; }
+  .worked ol { padding-left: 1.25rem; margin: 0.5rem 0 0; }
+  .worked li { margin-bottom: 0.6rem; }
+  .answer { font-weight: 600; color: var(--navy); }
+
+  ul.mistakes { padding-left: 1.25rem; }
+  ul.mistakes li { margin-bottom: 0.6rem; }
+
+  .crosslink {
+    margin-top: 2.5rem; padding: 1rem 1.1rem; border-radius: 12px;
+    background: var(--up-tint); color: var(--ink);
+  }
+  .crosslink a { color: var(--up); font-weight: 600; }
+
+  footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); font-size: 0.9rem; color: var(--ink-soft); }
+  footer p { margin-bottom: 0.75rem; }
+  footer .author { color: var(--ink); font-weight: 500; }
+  .other-sites { list-style: none; padding: 0; margin: 0.5rem 0 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+  .preset-group { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); margin: 0.75rem 0 0.4rem; }
+  .preset-group:first-of-type { margin-top: 0; }
+  .sec { display: inline-block; font-size: 0.78rem; font-weight: 700; color: var(--navy); background: var(--grid); border-radius: 6px; padding: 0.05rem 0.4rem; margin-right: 0.4rem; }
+  .fits { width: 100%; border-collapse: collapse; background: var(--surface); }
+  .fits th, .fits td { text-align: left; white-space: normal; }
+  .fits td:first-child, .fits th:first-child { text-align: left; width: 4.5rem; }
+  .preview { margin-top: 1.25rem; padding: 1rem 1.1rem; border: 1px dashed var(--rule); border-radius: 12px; }
+  .preview h3 { margin-top: 0; }
+  .ruleline { font-family: var(--serif); font-size: 1.05rem; margin-top: 0.4rem; }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="../../">VCE Scaling</a> › General Maths › Recurrence relations
+  </nav>
+
+  <header>
+    <h1>Recurrence Relation Calculator</h1>
+    <p class="subtitle">VCE General Maths Units 1 &amp; 2 (Sequences and finance): enter <span class="m">V<sub>0</sub></span>, <span class="m">R</span> and <span class="m">D</span> to see every term worked out, step by step.</p>
+  </header>
+
+  <!-- ===================== CALCULATOR ===================== -->
+  <section class="calc" aria-label="Recurrence relation calculator">
+    <div class="presets-label">Try an example</div>
+    <div id="presets"></div>
+    <p class="context" id="context"></p>
+
+    <div class="fields">
+      <div>
+        <label for="v0">V<sub>0</sub> <span class="hint">starting value</span></label>
+        <input id="v0" type="number" step="any">
+      </div>
+      <div>
+        <label for="r">R <span class="hint">multiplier (1 if none)</span></label>
+        <input id="r" type="number" step="any">
+      </div>
+      <div>
+        <label for="d">D <span class="hint">added each step (− to subtract)</span></label>
+        <input id="d" type="number" step="any">
+      </div>
+      <div>
+        <label for="steps">Steps <span class="hint">how many terms</span></label>
+        <input id="steps" type="number" min="1" max="120" step="1">
+      </div>
+    </div>
+
+    <details class="helper">
+      <summary>Work out R from an interest or depreciation rate</summary>
+      <div class="helper-grid">
+        <div>
+          <label for="hRate">Rate (% per year)</label>
+          <input id="hRate" type="number" step="any" value="6">
+        </div>
+        <div>
+          <label for="hPeriods">Compounding</label>
+          <select id="hPeriods">
+            <option value="1">Yearly (1)</option>
+            <option value="4">Quarterly (4)</option>
+            <option value="12" selected>Monthly (12)</option>
+            <option value="26">Fortnightly (26)</option>
+            <option value="52">Weekly (52)</option>
+          </select>
+        </div>
+        <div>
+          <label for="hDir">Value is</label>
+          <select id="hDir">
+            <option value="up">Increasing (interest)</option>
+            <option value="down">Decreasing (depreciation)</option>
+          </select>
+        </div>
+        <button class="btn" id="hUse" type="button">Use this R</button>
+      </div>
+      <p class="helper-out" id="hOut"></p>
+    </details>
+
+    <div aria-live="polite">
+      <div class="rule-box" id="ruleBox"></div>
+      <div class="graph" id="graph"></div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col"><i>n</i></th>
+              <th scope="col">Working</th>
+              <th scope="col">V<sub><i>n</i></sub></th>
+              <th scope="col">Change</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <p class="table-note">Values are shown to 2 decimal places, but each step uses the full unrounded value, just like your CAS.</p>
+    </div>
+  </section>
+
+  <!-- ===================== EXPLANATION ===================== -->
+  <section>
+    <h2>Reading a recurrence relation</h2>
+    <p>A recurrence relation is a rule that tells you how to get the <strong>next</strong> value from the <strong>current</strong> one. It always has two parts: a starting value, and a rule.</p>
+    <p style="text-align:center;font-size:1.3rem"><span class="m">V<sub>0</sub> = 2500,&nbsp;&nbsp; V<sub>n+1</sub> = V<sub>n</sub> + 100</span></p>
+    <p><span class="m">V<sub>0</sub></span> is where you start (the value at time zero). <span class="m">V<sub>n</sub></span> is the value after <span class="m">n</span> steps, so <span class="m">V<sub>3</sub></span> is the value after three years, months or thousand kilometres. The rule above says "to find the next value, add 100 to the current value". When a sequence isn't about money, you'll often see <span class="m">t<sub>n</sub></span> used instead of <span class="m">V<sub>n</sub></span>. It works exactly the same way.</p>
+
+    <h3>The two types in Units 1 &amp; 2</h3>
+    <div class="types" style="grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))">
+      <div class="type-card">
+        <h3>Linear (arithmetic)</h3>
+        <p>Add or subtract the same amount, <span class="m">D</span>, each step.</p>
+        <p class="m">V<sub>n+1</sub> = V<sub>n</sub> + D</p>
+        <p>Rule for term <span class="m">n</span>: <span class="m">V<sub>n</sub> = V<sub>0</sub> + n × D</span></p>
+        <p>Used for simple interest (growth), and flat rate and unit cost depreciation (decay). Graph: points in a straight line.</p>
+      </div>
+      <div class="type-card">
+        <h3>Geometric</h3>
+        <p>Multiply by the same amount, <span class="m">R</span>, each step.</p>
+        <p class="m">V<sub>n+1</sub> = R × V<sub>n</sub></p>
+        <p>Rule for term <span class="m">n</span>: <span class="m">V<sub>n</sub> = R<sup>n</sup> × V<sub>0</sub></span></p>
+        <p>Used for compound interest (<span class="m">R = 1 + r/100</span>) and reducing-balance depreciation (<span class="m">R = 1 − r/100</span>). Graph: points on a curve.</p>
+      </div>
+    </div>
+
+    <h2>Where this fits in your course</h2>
+    <div class="table-scroll" style="margin-top:0">
+      <table class="fits">
+        <thead><tr><th>Section</th><th>Topic</th><th>Try this example</th></tr></thead>
+        <tbody>
+          <tr><td>3B</td><td>Writing recurrence relations in symbolic form</td><td>Any example: read the relation in the blue box</td></tr>
+          <tr><td>3C–3D</td><td>Arithmetic sequences and recursion</td><td>Set R = 1 and choose your own D</td></tr>
+          <tr><td>3E</td><td>Simple interest, flat rate and unit cost depreciation</td><td>Simple interest, Flat rate, Unit cost</td></tr>
+          <tr><td>3F–3G</td><td>Geometric sequences and recursion</td><td>Set D = 0 and choose your own R</td></tr>
+          <tr><td>3H</td><td>Compound interest and reducing-balance depreciation</td><td>Compound interest, Reducing balance</td></tr>
+          <tr><td>3I</td><td>Finding term <i>n</i> with a rule</td><td>Check the "rule for term n" line against the table</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-note">Section references are to Chapter 3, Sequences and finance, in Cambridge Senior Mathematics General Mathematics VCE Units 1 &amp; 2 (2nd edition).</p>
+
+    <h2>Worked example</h2>
+    <div class="worked">
+      <p>Priya invests $4500 at 5.5% per annum, compounding yearly.</p>
+      <p><strong>a)</strong> Write a recurrence relation for the value of the investment. <strong>b)</strong> Find the value after 1, 2 and 3 years. <strong>c)</strong> Use a rule to find the value after 10 years.</p>
+      <ol>
+        <li><strong>Define the variable.</strong> Let <span class="m">V<sub>n</sub></span> be the value of the investment after <span class="m">n</span> years.</li>
+        <li><strong>Find R.</strong> <span class="m">R = 1 + 5.5/100 = 1.055</span></li>
+        <li><strong>Write the relation.</strong> <span class="answer">V<sub>0</sub> = 4500, &nbsp;V<sub>n+1</sub> = 1.055 × V<sub>n</sub></span></li>
+        <li><strong>Generate the terms.</strong><br>
+          <span class="m">V<sub>1</sub> = 1.055 × 4500 = $4747.50</span><br>
+          <span class="m">V<sub>2</sub> = 1.055 × 4747.50 = $5008.61</span><br>
+          <span class="m">V<sub>3</sub> = 1.055 × 5008.6125 = $5284.09</span></li>
+        <li><strong>Use the rule for term n.</strong> <span class="m">V<sub>10</sub> = 1.055<sup>10</sup> × 4500 = $7686.65</span></li>
+        <li><span class="answer">After 10 years the investment is worth $7686.65.</span> Load the "Compound interest" example above to check every step.</li>
+      </ol>
+    </div>
+
+    <h2>Common mistakes</h2>
+    <ul class="mistakes">
+      <li><strong>Using the rate instead of R.</strong> 5.5% interest means <span class="m">R = 1.055</span>, not <span class="m">0.055</span> or <span class="m">5.5</span>. A 15% <em>depreciation</em> means <span class="m">R = 0.85</span>, because 85% of the value is left.</li>
+      <li><strong>Forgetting to split the rate.</strong> 6% per annum compounding monthly is <span class="m">6 ÷ 12 = 0.5%</span> per month, so <span class="m">R = 1.005</span> and <span class="m">n</span> counts months. The helper above does this for you.</li>
+      <li><strong>Working out D for simple interest from the wrong value.</strong> Simple interest is always calculated on the original principal, so <span class="m">D = r/100 × V<sub>0</sub></span> every year.</li>
+      <li><strong>Getting the sign of D wrong.</strong> Depreciation takes value away, so <span class="m">D</span> is negative in the rule (for example <span class="m">V<sub>n+1</sub> = V<sub>n</sub> − 2400</span>).</li>
+      <li><strong>Counting steps from 1.</strong> <span class="m">V<sub>0</sub></span> is the start. After 3 years you want <span class="m">V<sub>3</sub></span>, not <span class="m">V<sub>4</sub></span>.</li>
+      <li><strong>Rounding as you go.</strong> Keep full values in your calculator and round only the final answer, or you can drift a few cents off.</li>
+    </ul>
+
+    <div class="preview">
+      <h3>Looking ahead to Unit 3</h3>
+      <p>In Year 12 you'll combine both types into one rule, <span class="m">V<sub>n+1</sub> = R × V<sub>n</sub> + D</span>. This models loans, annuities and investments with regular payments, where interest is added <em>and</em> a payment is made each step. The three "Unit 3 preview" examples above let you try it now.</p>
+    </div>
+
+    <div class="crosslink">
+      Taking General Maths in Year 12? <a href="../../">See how your General Maths study score is scaled →</a>
+    </div>
+  </section>
+
+  <footer>
+    <p class="author">Built by a VCE General Mathematics teacher in Victoria, to help students understand how their scores are scaled.</p>
+    <p>A free study aid, not affiliated with VCAA, VTAC or any textbook publisher. Always set out your working the way your teacher and the exam expect.</p>
+    <p>More free tools:</p>
+    <ul class="other-sites">
+      <li><a href="../../">VCE Maths Scaling Calculator</a></li>
+      <li><a href="https://calccompoundinterest.com/">Compound interest calculator</a></li>
+      <li><a href="https://musicusingtech.com/">Music Using Tech</a></li>
+      <li><a href="https://lifebuiltwell.com/">Life Built Well</a></li>
+    </ul>
+  </footer>
+</main>
+
+<script>
+/* ==============================================================
+   EXAMPLES — edit, add or remove these freely
+   group:   which heading the button sits under
+   section: the Chapter 3 section it matches (shown to students)
+   v0 = starting value, r = multiplier R, d = amount D added each
+   step, steps = how many terms to show.
+   ============================================================== */
+const PRESETS = [
+  { group: "Units 1 & 2", section: "3E", name: "Simple interest",
+    text: "Sam invests $2500 at 4% p.a. simple interest. Each year 4% of $2500 = $100 is added, so D = 100.",
+    v0: 2500, r: 1, d: 100, steps: 8 },
+  { group: "Units 1 & 2", section: "3E", name: "Flat rate depreciation",
+    text: "A café buys a $30 000 coffee machine that loses $2400 in value every year.",
+    v0: 30000, r: 1, d: -2400, steps: 12 },
+  { group: "Units 1 & 2", section: "3E", name: "Unit cost depreciation",
+    text: "A $38 000 ute loses $120 in value for every 1000 km it travels. Here n counts thousands of kilometres.",
+    v0: 38000, r: 1, d: -120, steps: 20 },
+  { group: "Units 1 & 2", section: "3H", name: "Compound interest",
+    text: "Priya invests $4500 at 5.5% p.a., compounding yearly, so R = 1.055.",
+    v0: 4500, r: 1.055, d: 0, steps: 10 },
+  { group: "Units 1 & 2", section: "3H", name: "Reducing-balance depreciation",
+    text: "The $30 000 coffee machine instead loses 15% of its value each year, so R = 0.85.",
+    v0: 30000, r: 0.85, d: 0, steps: 12 },
+
+  { group: "Unit 3 preview", section: "Unit 3", name: "Savings with withdrawals",
+    text: "Jordan invests $5000 at 4% p.a. compounding yearly, and withdraws $300 at the end of each year.",
+    v0: 5000, r: 1.04, d: -300, steps: 10 },
+  { group: "Unit 3 preview", section: "Unit 3", name: "Reducing-balance loan",
+    text: "Mia borrows $24 000 at 6.6% p.a. compounding monthly (R = 1.0055) and repays $520 each month.",
+    v0: 24000, r: 1.0055, d: -520, steps: 54 },
+  { group: "Unit 3 preview", section: "Unit 3", name: "Regular deposits",
+    text: "Leah starts with $1000, earns 0.3% interest per month (R = 1.003) and adds $200 at the end of each month.",
+    v0: 1000, r: 1.003, d: 200, steps: 24 }
+];
+
+/* Which preset loads when the page opens (0 = first in the list) */
+const START_PRESET = 3;
+
+const MAX_STEPS = 120;
+
+
+/* ==============================================================
+   NUMBER FORMATTING
+   Matches the textbook style: no separator up to 9999,
+   a space for 10 000 and above, up to 2 decimal places.
+   ============================================================== */
+const $ = id => document.getElementById(id);
+const inV0 = $("v0"), inR = $("r"), inD = $("d"), inSteps = $("steps");
+
+function fmt(x) {
+  let v = Math.abs(x) < 0.005 ? 0 : x;
+  let s = (Math.round(v * 100) / 100).toString();
+  const neg = s.startsWith("-"); if (neg) s = s.slice(1);
+  let [whole, dec] = s.split(".");
+  if (dec && dec.length === 1) dec += "0";           // 4747.5 → 4747.50
+  if (whole.length > 4) whole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return (neg ? "−" : "") + whole + (dec ? "." + dec : "");
+}
+const fmtR = x => String(+x.toPrecision(10));        // tidy multiplier, e.g. 1.005
+
+
+/* ==============================================================
+   PRESET BUTTONS (grouped)
+   ============================================================== */
+const presetBtns = [];
+let lastGroup = null, row = null;
+PRESETS.forEach((p, i) => {
+  if (p.group !== lastGroup) {
+    const h = document.createElement("div");
+    h.className = "preset-group"; h.textContent = p.group;
+    row = document.createElement("div"); row.className = "presets";
+    $("presets").append(h, row);
+    lastGroup = p.group;
+  }
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "preset"; b.textContent = p.name;
+  b.addEventListener("click", () => loadPreset(i));
+  row.appendChild(b); presetBtns.push(b);
+});
+
+function loadPreset(i) {
+  const p = PRESETS[i];
+  inV0.value = p.v0; inR.value = p.r; inD.value = p.d; inSteps.value = p.steps;
+  $("context").innerHTML = `<span class="sec">${p.section}</span>${p.text}`;
+  markPreset(i);
+  update();
+}
+function markPreset(i) {
+  presetBtns.forEach((b, j) => b.setAttribute("aria-pressed", j === i ? "true" : "false"));
+}
+[inV0, inR, inD, inSteps].forEach(inp => inp.addEventListener("input", () => {
+  markPreset(-1);
+  $("context").textContent = "Your own values.";
+  update();
+}));
+
+
+/* ==============================================================
+   RATE → R HELPER  (R = 1 + r/100 or R = 1 − r/100, as in 3H)
+   ============================================================== */
+function helperR() {
+  const rate = Number($("hRate").value);
+  const k = Number($("hPeriods").value);
+  const sign = $("hDir").value === "up" ? 1 : -1;
+  if (!Number.isFinite(rate) || $("hRate").value.trim() === "") return null;
+  return { R: 1 + sign * rate / (100 * k), rate, k, sign };
+}
+function showHelper() {
+  const h = helperR();
+  if (!h) { $("hOut").textContent = ""; return; }
+  const per = +(h.rate / h.k).toPrecision(8);
+  $("hOut").textContent = (h.k > 1 ? `${h.rate}% ÷ ${h.k} = ${per}% per period, so ` : "") +
+    `R = 1 ${h.sign > 0 ? "+" : "−"} ${per}/100 = ${fmtR(h.R)}`;
+}
+["hRate", "hPeriods", "hDir"].forEach(id => $(id).addEventListener("input", showHelper));
+$("hUse").addEventListener("click", () => {
+  const h = helperR(); if (!h) return;
+  inR.value = fmtR(h.R);
+  markPreset(-1);
+  $("context").textContent = "Your own values.";
+  update();
+});
+
+
+/* ==============================================================
+   DESCRIBE THE MODEL (names follow the textbook's wording)
+   ============================================================== */
+const EPS = 1e-12;
+function describe(R, D, v0) {
+  const linear = Math.abs(R - 1) < EPS, geometric = Math.abs(D) < EPS;
+  if (linear && geometric) return { type: "Constant", cls: "same", note: "Nothing changes: R = 1 and D = 0.", rule: null };
+  if (linear) return D > 0
+    ? { type: "Linear growth", cls: "up",   sec: "3E", note: `Adds ${fmt(D)} each step, as in simple interest.`, rule: "linear" }
+    : { type: "Linear decay",  cls: "down", sec: "3E", note: `Subtracts ${fmt(-D)} each step, as in flat rate or unit cost depreciation.`, rule: "linear" };
+  const pct = +((R - 1) * 100).toPrecision(6);
+  if (geometric) return R > 1
+    ? { type: "Geometric growth", cls: "up",   sec: "3H", note: `Grows by ${pct}% each step, as in compound interest.`, rule: "geometric" }
+    : { type: "Geometric decay",  cls: "down", sec: "3H", note: `Falls by ${-pct}% each step, as in reducing-balance depreciation.`, rule: "geometric" };
+  const next = R * v0 + D;
+  return {
+    type: "Combined: Unit 3",
+    cls: next > v0 + 1e-9 ? "up" : next < v0 - 1e-9 ? "down" : "same",
+    note: `Changes by ${pct}% and then ${D > 0 ? "adds " + fmt(D) : "subtracts " + fmt(-D)} each step. This form is studied in Unit 3 (loans, annuities and investments with regular payments).`,
+    rule: null
+  };
+}
+
+function relationHTML(v0, R, D) {
+  const Rpart = Math.abs(R - 1) < EPS ? "" : `${fmtR(R)} × `;
+  const dPart = Math.abs(D) < EPS ? "" : (D > 0 ? " + " : " − ") + fmt(Math.abs(D));
+  return `<span style="white-space:nowrap"><i>V</i><sub>0</sub> = ${fmt(v0)},</span> ` +
+         `<span style="white-space:nowrap"><i>V</i><sub><i>n</i>+1</sub> = ${Rpart}<i>V</i><sub><i>n</i></sub>${dPart}</span>`;
+}
+
+/* Rule for term n (3D and 3I) */
+function ruleHTML(kind, v0, R, D, steps, vals) {
+  if (kind === "linear") {
+    return `Rule for term <i>n</i>: <i>V<sub>n</sub></i> = ${fmt(v0)} + <i>n</i> × ${D < 0 ? "(" + fmt(D) + ")" : fmt(D)}` +
+           ` &nbsp;→&nbsp; <i>V</i><sub>${steps}</sub> = ${fmt(v0)} + ${steps} × ${D < 0 ? "(" + fmt(D) + ")" : fmt(D)} = ${fmt(vals[steps])}`;
+  }
+  if (kind === "geometric") {
+    return `Rule for term <i>n</i>: <i>V<sub>n</sub></i> = ${fmtR(R)}<sup><i>n</i></sup> × ${fmt(v0)}` +
+           ` &nbsp;→&nbsp; <i>V</i><sub>${steps}</sub> = ${fmtR(R)}<sup>${steps}</sup> × ${fmt(v0)} = ${fmt(vals[steps])}`;
+  }
+  return "";
+}
+
+
+/* ==============================================================
+   MAIN UPDATE
+   ============================================================== */
+function update() {
+  const v0 = Number(inV0.value), R = Number(inR.value), D = Number(inD.value);
+  let steps = Math.round(Number(inSteps.value));
+  const ok = [inV0, inR, inD, inSteps].every(i => i.value.trim() !== "") &&
+             [v0, R, D, steps].every(Number.isFinite) && steps >= 1;
+  if (!ok) {
+    $("ruleBox").innerHTML = `<p>Fill in all four boxes, or tap an example above.</p>`;
+    $("graph").innerHTML = ""; $("tbody").innerHTML = "";
+    return;
+  }
+  steps = Math.min(steps, MAX_STEPS);
+
+  const vals = [v0];
+  for (let n = 1; n <= steps; n++) vals.push(R * vals[n - 1] + D);
+
+  const info = describe(R, D, v0);
+  const crossIndex = v0 > 0 ? vals.findIndex(v => v <= 0) : -1;
+  let extra = "";
+  if (crossIndex > 0) {
+    extra = Math.abs(R - 1) < EPS
+      ? `<p class="alert">The value reaches zero or below at step ${crossIndex}. An asset can't be worth less than nothing, so the model stops making sense here.</p>`
+      : `<p class="alert">The value reaches zero or below at step ${crossIndex}. For a loan, that's when it's paid off. The final payment is usually smaller than the others.</p>`;
+  } else if (Math.abs(R - 1) > EPS && Math.abs(D) > EPS && Math.abs(R * v0 + D - v0) < 0.005) {
+    extra = `<p class="alert" style="color:var(--up)">The value stays the same every step. The interest earned equals the payment, so this is a perpetuity (Unit 3).</p>`;
+  }
+  const rule = info.rule ? `<div class="ruleline">${ruleHTML(info.rule, v0, R, D, steps, vals)}</div>` : "";
+  $("ruleBox").innerHTML = `
+    <div class="rel">${relationHTML(v0, R, D)}</div>
+    <span class="tag ${info.cls}">${info.type}</span>${info.sec ? ` <span class="sec">${info.sec}</span>` : ""}
+    <p>${info.note} After ${steps} step${steps === 1 ? "" : "s"}, <i>V</i><sub>${steps}</sub> = <strong>${fmt(vals[steps])}</strong>.</p>
+    ${rule}
+    ${extra}`;
+
+  const rows = vals.map((v, n) => {
+    if (n === 0) return `<tr class="start"><td>0</td><td class="calc-col">start</td><td>${fmt(v)}</td><td></td></tr>`;
+    const prev = vals[n - 1];
+    const Rtxt = Math.abs(R - 1) < EPS ? "" : `${fmtR(R)} × `;
+    const dTxt = Math.abs(D) < EPS ? "" : (D > 0 ? ` + ${fmt(D)}` : ` − ${fmt(-D)}`);
+    const change = v - prev;
+    const cls = change > 0.005 ? "up" : change < -0.005 ? "down" : "";
+    return `<tr class="${n === crossIndex ? "crossed" : ""}"><td>${n}</td><td class="calc-col">${Rtxt}${fmt(prev)}${dTxt}</td><td>${fmt(v)}</td><td class="chg ${cls}">${change > 0.005 ? "+" : ""}${fmt(change)}</td></tr>`;
+  });
+  $("tbody").innerHTML = rows.join("");
+
+  drawGraph(vals, crossIndex);
+}
+
+
+/* ==============================================================
+   GRAPH — each term is a separate dot (sequences are discrete,
+   so the points are not joined)
+   ============================================================== */
+function drawGraph(vals, crossIndex) {
+  const W = 600, H = 300, L = 86, Rt = 16, T = 16, B = 46;
+  const n = vals.length - 1;
+  let lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  if (hi === lo) hi = lo + 1;
+  const span = hi - lo;
+  const step0 = Math.pow(10, Math.floor(Math.log10(span / 4)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * step0).find(s => span / s <= 5);
+  lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+
+  const x = i => L + (n === 0 ? 0 : (i / n) * (W - L - Rt));
+  const y = v => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Graph of the terms V0 to V${n}">`;
+  for (let v = lo; v <= hi + step / 2; v += step) {
+    svg += `<line x1="${L}" x2="${W - Rt}" y1="${y(v)}" y2="${y(v)}" stroke="var(--rule)" stroke-width="${Math.abs(v) < step / 1e6 ? 1.5 : 1}"/>`;
+    svg += `<text x="${L - 10}" y="${y(v) + 7}" text-anchor="end">${fmtAxis(v)}</text>`;
+  }
+  const xStep = Math.max(1, Math.ceil(n / 10));
+  for (let i = 0; i <= n; i += xStep) svg += `<text x="${x(i)}" y="${H - 16}" text-anchor="middle">${i}</text>`;
+  svg += `<text x="${W - Rt}" y="${H - 1}" text-anchor="end" font-style="italic">n</text>`;
+  const r = n > 60 ? 3.5 : n > 30 ? 5 : 6.5;
+  vals.forEach((v, i) => {
+    const col = i === crossIndex ? "var(--down)" : "var(--navy)";
+    svg += `<circle cx="${x(i)}" cy="${y(v)}" r="${r}" fill="${col}"><title>V${i} = ${fmt(v)}</title></circle>`;
+  });
+  $("graph").innerHTML = svg + `</svg>`;
+}
+function fmtAxis(v) {
+  const a = Math.abs(v);
+  if (a >= 1e6) return (v / 1e6).toLocaleString("en-AU", { maximumFractionDigits: 1 }) + "M";
+  if (a >= 1e4) return (v / 1e3).toLocaleString("en-AU", { maximumFractionDigits: 1 }) + "k";
+  return v.toLocaleString("en-AU", { maximumFractionDigits: 2 }).replace(/,/g, "");
+}
+
+
+/* ==============================================================
+   START
+   ============================================================== */
+showHelper();
+loadPreset(START_PRESET);
+</script>
+</body>
+</html>
